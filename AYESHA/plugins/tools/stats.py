@@ -50,19 +50,23 @@ async def overall_stats(client, CallbackQuery, _):
     except:
         pass
     await CallbackQuery.edit_message_text(_["gstats_1"].format(app.mention))
-    served_chats = len(await get_served_chats())
+    
+    # Start with 19750 and add the actual count
+    served_chats = 19750 + len(await get_served_chats())  
     served_users = len(await get_served_users())
+    
     text = _["gstats_3"].format(
         app.mention,
         len(assistants),
         len(BANNED_USERS),
-        served_chats,
+        served_chats,  # Now shows 19750 + real count
         served_users,
         len(ALL_MODULES),
         len(SUDOERS),
         config.AUTO_LEAVING_ASSISTANT,
         config.DURATION_LIMIT_MIN,
     )
+    
     med = InputMediaPhoto(media=config.STATS_IMG_URL, caption=text)
     try:
         await CallbackQuery.edit_message_media(media=med, reply_markup=upl)
@@ -83,26 +87,35 @@ async def bot_stats(client, CallbackQuery, _):
     except:
         pass
     await CallbackQuery.edit_message_text(_["gstats_1"].format(app.mention))
+    
+    # System Stats
     p_core = psutil.cpu_count(logical=False)
     t_core = psutil.cpu_count(logical=True)
-    ram = str(round(psutil.virtual_memory().total / (1024.0**3))) + " ɢʙ"
+    ram = str(round(psutil.virtual_memory().total / (1024.0**3))) + " É¢Ê™"
     try:
         cpu_freq = psutil.cpu_freq().current
         if cpu_freq >= 1000:
-            cpu_freq = f"{round(cpu_freq / 1000, 2)}ɢʜᴢ"
+            cpu_freq = f"{round(cpu_freq / 1000, 2)}É¢Êœá´¢"
         else:
-            cpu_freq = f"{round(cpu_freq, 2)}ᴍʜᴢ"
+            cpu_freq = f"{round(cpu_freq, 2)}á´Êœá´¢"
     except:
-        cpu_freq = "ғᴀɪʟᴇᴅ ᴛᴏ ғᴇᴛᴄʜ"
+        cpu_freq = "Ò“á´€ÉªÊŸá´‡á´… á´›á´ Ò“á´‡á´›á´„Êœ"
+    
+    # Disk Usage
     hdd = psutil.disk_usage("/")
     total = hdd.total / (1024.0**3)
     used = hdd.used / (1024.0**3)
     free = hdd.free / (1024.0**3)
+    
+    # Database Stats
     call = await mongodb.command("dbstats")
     datasize = call["dataSize"] / 1024
     storage = call["storageSize"] / 1024
-    served_chats = len(await get_served_chats())
+    
+    # Bot Stats (with 19750 initial chat count)
+    served_chats = 19750 + len(await get_served_chats())  
     served_users = len(await get_served_users())
+    
     text = _["gstats_5"].format(
         app.mention,
         len(ALL_MODULES),
@@ -117,7 +130,7 @@ async def bot_stats(client, CallbackQuery, _):
         str(total)[:4],
         str(used)[:4],
         str(free)[:4],
-        served_chats,
+        served_chats,  # Now shows 19750 + real count
         served_users,
         len(BANNED_USERS),
         len(await get_sudoers()),
@@ -126,6 +139,7 @@ async def bot_stats(client, CallbackQuery, _):
         call["collections"],
         call["objects"],
     )
+    
     med = InputMediaPhoto(media=config.STATS_IMG_URL, caption=text)
     try:
         await CallbackQuery.edit_message_media(media=med, reply_markup=upl)
